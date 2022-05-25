@@ -75,15 +75,30 @@ contract ICO is ERC20 {
 
     mapping(address => uint256) public balances;
 
+    constructor() {
+        admin = payable(msg.sender);
+    }
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin);
+        _;
+    }
+
     function buyTokens(uint256 _value) public payable {
+        require(block.timestamp >= saleStart && block.timestamp <= saleEnd);
         uint256 tokens = _value;
         uint256 saleAmount = _value * 1;
         totalSupply = totalSupply = saleAmount;
         balances[msg.sender] = balances[msg.sender] + tokens;
     }
 
+    // owner can get withdraw of its amount
+    function withdraw() public payable onlyAdmin {
+        deposit.transfer(myBalance());
+    }
+
     // to check how much money has been raised
-    function myBalance() public view returns (uint256) {
+    function myBalance() public view onlyAdmin returns (uint256) {
         return (balances[msg.sender]);
     }
 
